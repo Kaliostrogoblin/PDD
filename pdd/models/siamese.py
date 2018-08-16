@@ -10,33 +10,6 @@ import keras.backend as K
 #------------------IMPORTS---------------------#
 
 
-def manhattan_distance(inputs, elementwise=True):
-    x, y = inputs
-    if elementwise:
-        return K.abs(x - y)
-    else:
-        return K.sum(K.abs(x - y), axis=-1, keepdims=True)
-
-
-def euclidean_distance(inputs):
-    x, y = inputs
-    return K.sqrt(
-                K.maximum(
-                    K.sum(K.square(x - y), axis=-1, keepdims=True), 
-                    K.epsilon())
-            )
-
-
-def contrastive_loss(y_true, y_pred):
-    """ Contrastive loss from Hadsell-et-al.'06
-        http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
-    """
-    m = 1.0   # margin
-    between_class = (1-y_true) * K.square(y_pred)      # (1-Y)*(d^2)
-    within_class = y_true * K.square(K.maximum(m-y_pred, 0))  # (Y) * max((margin - d)^2, 0)
-    return within_class + between_class
-
-
 def make_siamese(twin_model, dist='l1', loss='cross_entropy', train_opt=None):
     # two inputs: left and right
     # 1: because we skip batch size

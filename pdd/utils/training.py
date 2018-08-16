@@ -1,24 +1,11 @@
 '''Batch generator class for Siamese text classifier
 '''
-# for data augmentation
-from keras.preprocessing.image import ImageDataGenerator
-
 import numpy as np
 from glob import glob
 from abc import ABC, abstractmethod
 from scipy.ndimage import imread
 import os
 
-augmenter = ImageDataGenerator(
-    rotation_range = 75,
-    shear_range=0.3, 
-    zoom_range=0.3, 
-    width_shift_range=0.2, 
-    height_shift_range=0.2,
-    channel_shift_range=0.2,
-    vertical_flip=True,
-    horizontal_flip=True
-)
 
 def checkEqual(lst):
     '''Checks if all elements in list are equal'''
@@ -45,23 +32,8 @@ class BaseBatchGenerator(ABC):
     '''Abstract class for Batch Generator
     '''
     @abstractmethod
-    def __init__(self, X=None, y=None, batch_size=32, dirname=None):
-        if dirname is not None:
-            # we already have all statistics
-            self._from_directory(dirname, batch_size)
-        else:
-            self._from_arrays(X, y, batch_size)
-
-
-    @abstractmethod
-    def _from_arrays(self, X, y, batch_size=32):
+    def from_directory():
         pass
-
-
-    @abstractmethod
-    def _from_directory(self, dirname, batch_size=32):
-        pass
-
 
     @abstractmethod
     def next_batch():
@@ -75,31 +47,22 @@ class SiameseBatchGenerator(BaseBatchGenerator):
     Negative pair (0) - utterances from different classes
 
     # Arguments
-        X : np.array, optional[default=None]
-            input samples
-
-        y : np.array, optional[default=None]
-            labels
-
-        batch_size : int, optional[default=32]
-                     the size of input batch
-
-        dirname: string, optional[default=32]
-                 path to the directory with images
     """
-    def __init__(self, X=None, y=None, batch_size=32, dirname=None):
-        super(SiameseBatchGenerator, self).__init__(X, y, batch_size, dirname)
-            
-            
-    def _from_arrays(self, X, y, batch_size=32):
-        assert X is not None and y is not None, "X and y input arrays are required"
+    def __init__(self, X, y, batch_size=32, flow_from_dir=False, **kwargs):
         self.x = X
         self.y = y
         self.batch_size = batch_size
-        self.__count_stats()
+        self.flow_from_dir = flow_from_dir
+
+        if flow_from_dir:
+            # we already have all statistics
+            self.__dict__.update(kwargs)
+        else: 
+            self.__count_stats()
 
 
-    def _from_directory(self, dirname, batch_size=32):
+    @classmethod
+    def from_directory(cls, dirname, batch_size=32):
         '''Constructor only for images
         '''
         assert os.path.isdir(dirname), "There is no such directory `%s`" % dirname
@@ -107,32 +70,36 @@ class SiameseBatchGenerator(BaseBatchGenerator):
         X, y = [], []
         class_folders = glob(os.path.join(dirname, "*", ""))
 
-        self.dirname = dirname
-        self.batch_size = batch_size
-        self.n_classes = len(class_folders)
-        self.samples_per_class = np.zeros(self.n_classes, dtype=np.int32)
-        self.class_idx = [None]*self.n_classes
+        n_classes = len(class_folders)
+        samples_per_class = np.zeros(n_classes, dtype=np.int32)
+        class_idx = [None]*n_classes
 
         for i, folder in enumerate(class_folders):
-            img_fnames = glob(os.path.join(folder, '*.jpg'))
+            img_fnames = glob(os.path.join(dirname, folder, '*.jpg'))
             # add all image files with other extensions
             for ext in ["*.png", "*jpeg"]:
                 img_fnames.extend(glob(os.path.join(dirname, folder, ext)))
             # add filenames and corresponding labels to array
             X.extend(img_fnames)
             y.extend([i]*len(img_fnames))
-            self.samples_per_class[i] = len(img_fnames)
+            samples_per_class[i] = len(img_fnames)
             # split sorted indices on classes
             if i == 0:
-                self.class_idx[i] = np.arange(len(img_fnames))
+                class_idx[i] = np.arange(len(img_fnames))
             else:
-                low = sum(self.samples_per_class[:i])
-                high = low + self.samples_per_class[i]
-                self.class_idx[i] = np.arange(low, high, dtype=np.int32)
+                low = sum(samples_per_class[:i])
+                high = low + samples_per_class[i]
+                class_idx[i] = np.arange(low, high, dtype=np.int32)
         # transform to arrays for convenience
-        self.x = np.array(X)
-        self.y = np.array(y)
-        
+        X = np.array(X)
+        y = np.array(y)
+        # call __init__
+        return cls(X, y, batch_size, flow_from_dir=True, 
+                   # kwargs
+                   n_classes=n_classes, 
+                   samples_per_class=samples_per_class, 
+                   class_idx=class_idx)
+            
 
     def __count_stats(self):
         self.samples_per_class = np.unique(self.y, return_counts=True)[1]
@@ -177,23 +144,22 @@ class SiameseBatchGenerator(BaseBatchGenerator):
         return pairs
 
 
-    def __get_files_from_names(self, arr, augmentation=False):
+    def __get_files_from_names(self, arr):
         result = [None]*arr.size
         # read all files
         for i, x in enumerate(np.nditer(arr)):
             x = str(x)
-            # normalize image
-            result[i] = imread(x) / 255.
-            # create random distortions
-            if augmentation:
-                result[i] = augmenter.random_transform(result[i])
+            if os.path.splitext(x)[1] == '.txt':
+                result[i] = open(x, 'r', encoding='utf8').read()
+            else:
+                result[i] = imread(x) / 255.
 
         result = np.array(result)
         result = result.reshape((*arr.shape, *result[0].shape))
         return result
 
 
-    def next_batch(self, batch_size=None, shuffle=True, seed=None, augmentation=False):
+    def next_batch(self, batch_size=None, shuffle=True, seed=None):
         if seed is not None:
             np.random.seed(seed)
         # if batch size was not specified use the default one
@@ -211,18 +177,10 @@ class SiameseBatchGenerator(BaseBatchGenerator):
             batch_xs, batch_ys = shuffle_arrays(batch_xs, batch_ys, axes=[1, 0])
         # if flow_from_dir = True, batch_xs - filenames
         # so we should to read files 
-        if self.dirname is not None:
-            batch_xs = self.__get_files_from_names(batch_xs, augmentation) 
-        return [x for x in batch_xs], batch_ys
+        if self.flow_from_dir:
+            batch_xs = self.__get_files_from_names(batch_xs) 
+        return batch_xs, batch_ys
 
 
-    def gen(self, batch_size=None, shuffle=True, seed=None, augmentation=False):
-        if seed is not None:
-            np.random.seed(seed)
-
-        while True:
-            batch_xs, batch_ys = self.next_batch(
-                batch_size=batch_size, shuffle=shuffle, augmentation=augmentation)
-            yield [x for x in batch_xs], batch_ys
 
 
