@@ -1,3 +1,4 @@
+import hashlib
 import os
 import requests
 import six
