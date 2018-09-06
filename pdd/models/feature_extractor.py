@@ -20,7 +20,7 @@ def conv_block(n_filters,
                **kwargs):
 
     def _conv_block(inputs):
-        x = Conv2D(n_filters, filter_size, use_bias=False, 
+        x = Conv2D(n_filters, filter_size, 
             kernel_regularizer=L1L2(l1_reg, l2_reg), **kwargs)(inputs)
         x = Activation(activation)(x)
         
