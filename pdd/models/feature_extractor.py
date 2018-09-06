@@ -20,6 +20,8 @@ def conv_block(n_filters,
                use_bias=False):
 
     def _conv_block(inputs):
+        print(inputs)
+        print(use_bias)
         x = Conv2D(n_filters, filter_size, use_bias=use_bias,
             kernel_regularizer=L1L2(l1_reg, l2_reg))(inputs)
         x = Activation(activation)(x)
