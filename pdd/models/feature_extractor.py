@@ -16,12 +16,12 @@ def conv_block(n_filters,
                l1_reg=0, 
                l2_reg=0, 
                dropout=0, 
-               batch_norm=False, 
-               use_bias=False):
+               batch_norm=False):
 
     def _conv_block(inputs):
-        print(inputs)
-        print(use_bias)
+        # don't use bias, if batch_normalization
+        use_bias=True if batch_norm else False
+
         x = Conv2D(n_filters, filter_size, use_bias=use_bias,
             kernel_regularizer=L1L2(l1_reg, l2_reg))(inputs)
         x = Activation(activation)(x)
@@ -39,11 +39,11 @@ def conv_block(n_filters,
 
 def get_feature_extractor(input_shape):
     inputs = Input(input_shape)
-    x = conv_block(32, (10, 10), batch_norm=True, use_bias=False)(inputs)
-    x = conv_block(64, (7, 7), batch_norm=True, use_bias=False)(x)
-    x = conv_block(128, (5, 5), batch_norm=True, use_bias=False)(x)
-    x = conv_block(256, (3, 3), batch_norm=True, use_bias=False)(x)
-    x = conv_block(512, (3, 3), batch_norm=True, use_bias=False)(x)
+    x = conv_block(32, (10, 10), batch_norm=True)(inputs)
+    x = conv_block(64, (7, 7), batch_norm=True)(x)
+    x = conv_block(128, (5, 5), batch_norm=True)(x)
+    x = conv_block(256, (3, 3), batch_norm=True)(x)
+    x = conv_block(512, (3, 3), batch_norm=True)(x)
     x = Flatten()(x)
     encoded = Dense(1024, activation='sigmoid')(x)
     return Model(inputs, encoded)
