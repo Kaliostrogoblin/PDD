@@ -7,6 +7,10 @@ from keras.layers import Dot
 from keras.models import Model
 from keras.optimizers import Adam
 import keras.backend as K
+
+from ..losses import contrastive_loss
+from ..distances import manhattan_distance
+from ..distances import euclidean_distance
 #------------------IMPORTS---------------------#
 
 
