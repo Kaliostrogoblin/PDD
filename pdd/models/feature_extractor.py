@@ -20,9 +20,9 @@ def conv_block(n_filters,
 
     def _conv_block(inputs):
         # don't use bias, if batch_normalization
-        use_bias=True if batch_norm else False
+        bias=True if batch_norm else False
 
-        x = Conv2D(n_filters, filter_size, use_bias=use_bias,
+        x = Conv2D(n_filters, filter_size, use_bias=bias,
             kernel_regularizer=L1L2(l1_reg, l2_reg))(inputs)
         x = Activation(activation)(x)
         
