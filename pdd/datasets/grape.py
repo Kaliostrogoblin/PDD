@@ -31,7 +31,7 @@ def load_data(path='grape.tar',
 
     try:
         if split_on_train_test:
-            print("Splitting on train and test...")
+            print("\nSplitting on train and test...")
             test_size = 0.15 if test_size is None else test_size
             train_path, test_path = datadir_train_test_split(
                 path, test_size, random_state)
