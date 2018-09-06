@@ -17,10 +17,11 @@ def conv_block(n_filters,
                l2_reg=0, 
                dropout=0, 
                batch_norm=False, 
+               use_bias=False,
                **kwargs):
 
     def _conv_block(inputs):
-        x = Conv2D(n_filters, filter_size, 
+        x = Conv2D(n_filters, filter_size, use_bias=use_bias,
             kernel_regularizer=L1L2(l1_reg, l2_reg), **kwargs)(inputs)
         x = Activation(activation)(x)
         
