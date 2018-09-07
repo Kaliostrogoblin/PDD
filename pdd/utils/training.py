@@ -1,10 +1,12 @@
 '''Batch generator class for Siamese text classifier
 '''
-import numpy as np
-from glob import glob
-from abc import ABC, abstractmethod
-from scipy.ndimage import imread
 import os
+import numpy as np
+
+from abc import ABC, abstractmethod
+from glob import glob
+from scipy.ndimage import imread
+from keras.preprocessing.image import ImageDataGenerator
 
 
 def checkEqual(lst):
@@ -48,11 +50,17 @@ class SiameseBatchGenerator(BaseBatchGenerator):
 
     # Arguments
     """
-    def __init__(self, X, y, batch_size=32, flow_from_dir=False, **kwargs):
+    def __init__(self, X, y, 
+                 batch_size=32, 
+                 flow_from_dir=False, 
+                 augment=False, 
+                 **kwargs):
+
         self.x = X
         self.y = y
         self.batch_size = batch_size
         self.flow_from_dir = flow_from_dir
+        self.augment = augment
 
         if flow_from_dir:
             # we already have all statistics
@@ -60,9 +68,13 @@ class SiameseBatchGenerator(BaseBatchGenerator):
         else: 
             self.__count_stats()
 
+        # augmentation
+        if self.augment:
+            self.__get_distortion_generator()
+
 
     @classmethod
-    def from_directory(cls, dirname, batch_size=32):
+    def from_directory(cls, dirname, batch_size=32, augment=False):
         '''Constructor only for images
         '''
         assert os.path.isdir(dirname), "There is no such directory `%s`" % dirname
@@ -95,6 +107,7 @@ class SiameseBatchGenerator(BaseBatchGenerator):
         y = np.array(y, dtype=np.int8)
         # call __init__
         return cls(X, y, batch_size, flow_from_dir=True, 
+                   augment=augment,
                    # kwargs
                    n_classes=n_classes, 
                    samples_per_class=samples_per_class, 
@@ -108,6 +121,23 @@ class SiameseBatchGenerator(BaseBatchGenerator):
         sorted_idx = np.argsort(self.y)
         # split sorted indices on classes
         self.class_idx = np.split(sorted_idx, np.cumsum(self.samples_per_class)[:-1])
+
+
+    def __get_distortion_generator(self):
+        self.distortion_generator = ImageDataGenerator(
+            rotation_range = 75,
+            shear_range=0.3, 
+            zoom_range=0.3, 
+            width_shift_range=0.2, 
+            height_shift_range=0.2,
+            channel_shift_range=0.2,
+            vertical_flip=True,
+            horizontal_flip=True
+        )
+
+
+    def random_distortion(self, img):
+        return self.distortion_generator.random_transform(img)
 
 
     def __get_pair(self, c, pos):
@@ -148,12 +178,10 @@ class SiameseBatchGenerator(BaseBatchGenerator):
         result = [None]*arr.size
         # read all files
         for i, x in enumerate(np.nditer(arr)):
-            x = str(x)
-            if os.path.splitext(x)[1] == '.txt':
-                result[i] = open(x, 'r', encoding='utf8').read()
-            else:
-                result[i] = imread(x) / 255.
-
+            result[i] = imread(str(x)) / 255.
+            if self.augment:
+                result[i] = self.random_distortion(result[i])
+                
         result = np.array(result)
         result = result.reshape((*arr.shape, *result[0].shape))
         return result
