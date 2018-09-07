@@ -92,7 +92,7 @@ class SiameseBatchGenerator(BaseBatchGenerator):
                 class_idx[i] = np.arange(low, high, dtype=np.int32)
         # transform to arrays for convenience
         X = np.array(X)
-        y = np.array(y)
+        y = np.array(y, dtype=np.int8)
         # call __init__
         return cls(X, y, batch_size, flow_from_dir=True, 
                    # kwargs
@@ -166,7 +166,7 @@ class SiameseBatchGenerator(BaseBatchGenerator):
         batch_size = self.batch_size if batch_size is None else batch_size
         # arrays for pairs and labels respectively
         batch_xs = np.zeros((2, batch_size, *self.x.shape[1:]), dtype=self.x.dtype)
-        batch_ys = np.ones((batch_size, ))
+        batch_ys = np.ones((batch_size, ), dtype=np.int8)
         # positive pairs
         batch_xs[:, :batch_size // 2] = self.__create_pairs(batch_size)
         # negative pairs
