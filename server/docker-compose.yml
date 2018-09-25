@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+    pdd-model-server:
+        image: pdd-model-server
+        container_name: pdd-model-server
+        build: . 
+        ports:
+            - "5000:5000"

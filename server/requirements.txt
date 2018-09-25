@@ -1,0 +1,7 @@
+flask 
+gevent 
+requests 
+pillow
+numpy
+tensorflow
+keras
