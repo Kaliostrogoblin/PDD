@@ -58,6 +58,8 @@ class TfKNN:
         
         with self.graph.as_default():
             self._prepare_support_set(labels)
+            # init placeholder for the number of neighbours
+            self.n_neighbours = tf.placeholder(tf.int32, name="KNN_n_neighbours")
             # input placeholder for test images
             # self.norm_inputs = tf.cond(
             #     tf.reduce_max(self.inputs) > 1, 
@@ -71,22 +73,25 @@ class TfKNN:
                 a=self.normalized_keys, 
                 b=tf.transpose(self.normalized_queries), 
                 name="distance_matrix")
-            # class predictions (nearest neighbour)
-            self.preds_idx = tf.argmax(self.query_result, axis=0, 
-                name="predicted_nearest_idx")
+            # predict similarities and indices for n_neighbours
+            self.preds_sims, self.preds_idx = tf.nn.top_k(
+                tf.transpose(self.query_result), 
+                k=self.n_neighbours, 
+                name="predicted_nearest_idx"
+            )
+            # predicted classes
             self.preds_labels = tf.gather(self.support_set_y, self.preds_idx,
                 name="predicted_classes")
 
     @timeit
-    def predict(self, imgs, return_dist=False):
+    def predict(self, imgs, n_neighbours=1):
         print("Making prediction for %d images..." % len(imgs))
         with tf.Session(graph=self.graph) as sess:
-            return_list = [self.preds_labels]
-        
-            if return_dist:
-                return_list.append(self.query_result)
-            
-            return sess.run(return_list, feed_dict={self.inputs : imgs})
+            return sess.run([self.preds_labels, self.preds_sims], 
+                            feed_dict={
+                                self.inputs : imgs, 
+                                self.n_neighbours : n_neighbours
+                            })
 
 
     @timeit
@@ -95,8 +100,10 @@ class TfKNN:
         with tf.Session(graph=self.graph) as sess:
             tf.saved_model.simple_save(
                 session=sess,
-                inputs={"inputs" : self.inputs}, 
+                inputs={
+                    "inputs" : self.inputs,
+                    "n_neighbours" : self.n_neighbours}, 
                 export_dir=export_dir,
                 outputs={
-                    "dist_matrix" : self.query_result,
-                    "preds_labels" : self.preds_labels})
+                    "predicted_labels" : self.preds_labels,
+                    "predicted_similarities" : self.preds_sims})
