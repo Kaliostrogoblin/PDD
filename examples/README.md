@@ -1,6 +1,7 @@
 # PDD examples directory
 
 [Train_Siamese_Network.ipynb](https://github.com/Kaliostrogoblin/PDD/blob/master/examples/Train_Siamese_Network.ipynb) Shows how to train siamese network on the PDD data and upload it to Google Drive 
+[Metrics.ipynb](https://github.com/Kaliostrogoblin/PDD/blob/master/examples/Metrics.ipynb) Shows how to visualize some metrics of the trained feature extractor and the KNN classifier based on it
 
 ---
 
@@ -25,5 +26,10 @@ cd PDD
 
 ### With the help of [Colaboratory](https://colab.research.google.com) 
 
-Simply follow the [link](https://colab.research.google.com/github/Kaliostrogoblin/PDD/blob/master/examples/Train_Siamese_Network.ipynb) and follow the instructions in ipynb file.
+Simply follow the links:
+
+- [Train_Siamese_Network.ipynb](https://colab.research.google.com/github/Kaliostrogoblin/PDD/blob/master/examples/Train_Siamese_Network.ipynb)
+- [Metrics.ipynb](https://colab.research.google.com/github/Kaliostrogoblin/PDD/blob/master/examples/Metrics.ipynb)
+
+and follow the instructions in ipynb files.
 

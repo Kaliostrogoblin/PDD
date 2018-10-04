@@ -83,7 +83,7 @@ def plot_incorrect_predictions(imgs,
 
 
 def plot_embeddings(X, y, 
-                    X_origin=None, 
+                    X_origin=None,
                     show_as_imgs=False, 
                     title=None, 
                     savefig=False):
