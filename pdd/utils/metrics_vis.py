@@ -1,3 +1,6 @@
+'''Functions for the visualization of the some metrics
+'''
+
 from sklearn.metrics import confusion_matrix
 from sklearn.manifold import TSNE
 from matplotlib import offsetbox
@@ -6,18 +9,24 @@ import numpy as np
 import itertools
 
 
-def plot_confusion_matrix(cm, classes, title = 'Confusion matrix', savefig=False):
-    '''Plots the cm confusion matrix'''
+def plot_confusion_matrix(y_true, 
+                          y_pred, 
+                          target_names, 
+                          title = 'Confusion matrix', 
+                          savefig=False):
+    '''Plots the cm confusion matrix
+    '''
+    cm = confusion_matrix(y_true, y_pred)
     # create figure
     plt.figure(figsize=(10, 8))
     plt.imshow(cm, interpolation = 'nearest', cmap=plt.cm.Blues)
     plt.title(title)
     # add colorbar
     plt.colorbar()
-    # add the names of the classes as ticks
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45, fontsize=14)
-    plt.yticks(tick_marks, classes, fontsize=14)
+    # add the names of the target_names as ticks
+    tick_marks = np.arange(len(target_names))
+    plt.xticks(tick_marks, target_names, rotation=45, fontsize=14)
+    plt.yticks(tick_marks, target_names, fontsize=14)
 
     # colorization
     thresh = cm.max() / 2.
@@ -38,24 +47,30 @@ def plot_confusion_matrix(cm, classes, title = 'Confusion matrix', savefig=False
     plt.show()
 
 
-def plot_incorrect_predictions(true, predicted, savefig=False):
-    incorrect_preds_idx = np.where(true != predicted)[0]
+def plot_incorrect_predictions(imgs,  
+                               y_true, 
+                               y_pred,
+                               target_names, 
+                               savefig=False):
+    '''Plots the incorrect classified images
+    '''
+    incorrect_preds_idx = np.where(y_true != y_pred)[0]
     # the height of the figure is (number of images * width)
     # one image per row
     plt.figure(figsize=(5, len(incorrect_preds_idx)*5))
 
     for i, idx in enumerate(incorrect_preds_idx):
         # create subplot 
-        plt.subplot(len(incorrect_preds), 1, i+1)
+        plt.subplot(len(incorrect_preds_idx), 1, i+1)
         # get true class
-        true_class = test_dataset['target'][idx]
-        true_class = test_dataset['target_names'][true_class]
+        true_class = y_true[idx]
+        true_class = target_names[true_class]
         # get predicted class
-        pred_class = preds[idx]
-        pred_class = test_dataset['target_names'][pred_class]
+        pred_class = y_pred[idx]
+        pred_class = target_names[pred_class]
         # plot image and add caption
         plt.title('True - `%s`, Predicted - `%s`' % (true_class, pred_class))
-        plt.imshow(test_dataset['data'][idx])
+        plt.imshow(imgs[idx])
         # disable grid
         plt.grid(False)
         # disable ticks
