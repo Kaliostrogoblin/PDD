@@ -82,7 +82,7 @@ def plot_incorrect_predictions(imgs,
     plt.show()
 
 
-def plot_embedding(X, y, show_as_imgs=False, title=None, savefig=False):
+def plot_embeddings(X, y, show_as_imgs=False, title=None, savefig=False):
     '''Scale and visualize the embedding vectors'''
     # extract components
     tsne = TSNE(n_components=2, perplexity=5)
@@ -94,7 +94,7 @@ def plot_embedding(X, y, show_as_imgs=False, title=None, savefig=False):
     # create figure
     plt.figure(figsize=(10, 10))
     ax = plt.subplot(111)
-    for i in range(len(tsne_embeddings)):
+    for i in range(len(X)):
         # print the label of the sample
         plt.text(x = tsne_embeddings[i, 0], 
                  y = tsne_embeddings[i, 1], 
@@ -107,10 +107,10 @@ def plot_embedding(X, y, show_as_imgs=False, title=None, savefig=False):
         if hasattr(offsetbox, 'AnnotationBbox'):
             # only print thumbnails with matplotlib > 1.0
             shown_images = np.array([[1., 1.]])  # just something big
-            for i in range(len(tsne_embeddings)):
+            for i in range(len(X)):
                 # calculate distance between embeddings
                 dist = tsne_embeddings[i] - shown_images
-                dist = np.sum((dist) ** 2, 1)
+                dist = np.sum(dist ** 2, 1)
                 # don't show points that are too close
                 if np.min(dist) < 4e-4:
                     continue
