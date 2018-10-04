@@ -82,8 +82,13 @@ def plot_incorrect_predictions(imgs,
     plt.show()
 
 
-def plot_embeddings(X, y, show_as_imgs=False, title=None, savefig=False):
-    '''Scale and visualize the embedding vectors'''
+def plot_embeddings(X, y, 
+                    X_origin=None, 
+                    show_as_imgs=False, 
+                    title=None, 
+                    savefig=False):
+    '''Scale and visualize the embedding vectors
+    '''
     # extract components
     tsne = TSNE(n_components=2, perplexity=5)
     tsne_embeddings = tsne.fit_transform(X)
@@ -103,7 +108,7 @@ def plot_embeddings(X, y, show_as_imgs=False, title=None, savefig=False):
                  fontdict={'weight': 'bold', 'size': 12})
     
     # replace text labels with original images
-    if show_as_imgs:
+    if show_as_imgs and X_origin is not None:
         if hasattr(offsetbox, 'AnnotationBbox'):
             # only print thumbnails with matplotlib > 1.0
             shown_images = np.array([[1., 1.]])  # just something big
@@ -124,6 +129,8 @@ def plot_embeddings(X, y, show_as_imgs=False, title=None, savefig=False):
                 # plot img using embedding point as coords
                 imagebox = offsetbox.AnnotationBbox(img, tsne_embeddings[i])
                 ax.add_artist(imagebox)
+    else:
+        print("To annotate embeddings with the original images, X_origin is required!")
     # disable grid
     plt.grid(False)
     # disable ticks
