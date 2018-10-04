@@ -122,7 +122,7 @@ def plot_embeddings(X, y,
                 # add index of the image to the shown_images list
                 shown_images = np.r_[shown_images, [tsne_embeddings[i]]]
                 # plot original image
-                img = offsetbox.OffsetImage(X[i], 
+                img = offsetbox.OffsetImage(X_origin[i], 
                                             cmap=plt.cm.gray_r, 
                                             zoom=0.25, 
                                             filterrad=0.1)
