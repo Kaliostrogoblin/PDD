@@ -12,7 +12,8 @@ import itertools
 def plot_confusion_matrix(y_true, 
                           y_pred, 
                           target_names, 
-                          title = 'Confusion matrix', 
+                          title='Confusion matrix', 
+                          xticks_rotation=80,
                           savefig=False):
     '''Plots the cm confusion matrix
     '''
@@ -25,7 +26,7 @@ def plot_confusion_matrix(y_true,
     plt.colorbar()
     # add the names of the target_names as ticks
     tick_marks = np.arange(len(target_names))
-    plt.xticks(tick_marks, target_names, rotation=45, fontsize=14)
+    plt.xticks(tick_marks, target_names, rotation=xticks_rotation, fontsize=14)
     plt.yticks(tick_marks, target_names, fontsize=14)
 
     # colorization
