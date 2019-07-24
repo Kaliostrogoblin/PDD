@@ -8,7 +8,7 @@ import zipfile
 
 import numpy as np
 from glob import glob
-from scipy.ndimage import imread
+from matplotlib.pyplot import imread
 from tqdm import tqdm
 
 

@@ -5,7 +5,7 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from glob import glob
-from scipy.ndimage import imread
+from matplotlib.pyplot import imread
 from keras.preprocessing.image import ImageDataGenerator
 
 
