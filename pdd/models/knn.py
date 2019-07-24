@@ -2,7 +2,7 @@ from ..utils.timing import timeit
 from ..utils.graph_utils import freeze_session
 from ..utils.graph_utils import load_frozen_graph
 
-import keras.backend as K
+import tensorflow.keras.backend as K
 import tensorflow as tf
 import os
 

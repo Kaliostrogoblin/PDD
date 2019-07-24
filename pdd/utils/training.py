@@ -6,7 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from glob import glob
 from matplotlib.pyplot import imread
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 def checkEqual(lst):

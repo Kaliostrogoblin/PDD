@@ -56,7 +56,7 @@ As an feature extractor any Keras model with appropriate input layer can be used
 ```Python
 from pdd.models import get_feature_extractor
 
-import keras.backend as K
+import tensorflow.keras.backend as K
 import tensorflow as tf
 
 # set the single session for tensorflow and keras both

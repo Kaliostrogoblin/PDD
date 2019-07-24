@@ -1,12 +1,12 @@
 #------------------IMPORTS---------------------#
 # layers 
-from keras.layers import Input
-from keras.layers import Dense
-from keras.layers import Lambda
-from keras.layers import Dot
-from keras.models import Model
-from keras.optimizers import Adam
-import keras.backend as K
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Lambda
+from tensorflow.keras.layers import Dot
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+import tensorflow.keras.backend as K
 
 from ..losses import contrastive_loss
 from ..distances import manhattan_distance
