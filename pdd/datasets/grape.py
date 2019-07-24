@@ -26,7 +26,7 @@ def load_data(path='grape.tar',
     """
     path = get_file(path,
                     origin="http://pdd.jinr.ru/images/base/grape/grape.tar",
-                    file_hash='cbc74aef6e5f20ef22b41d1f0f77e40567e6fd1f4e2c007341df9fb4672c3fd8',
+                    file_hash='3127fa909fbbff8dc3b7e21c3901faec389e1d8297018050b023b7b46b1328f7',
                     extract=True)
 
     try:
