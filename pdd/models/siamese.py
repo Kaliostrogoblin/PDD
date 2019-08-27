@@ -17,7 +17,7 @@ from ..distances import euclidean_distance
 def make_siamese(twin_model, dist='l1', loss='cross_entropy', train_opt=None):
     # two inputs: left and right
     # 1: because we skip batch size
-    input_shape = twin_model.layers[0].input_shape[1:]
+    input_shape = twin_model.layers[0].input_shape[0][1:]
     input_dtype = twin_model.layers[0].dtype
     l_input = Input(shape=input_shape, dtype=input_dtype)
     r_input = Input(shape=input_shape, dtype=input_dtype)
